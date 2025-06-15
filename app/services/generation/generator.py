@@ -9,7 +9,7 @@ from app.models.retrieval import (
     GenerationResponse, 
     RetrievalRequest,
     RetrievedChunk,
-    StreamingGenerationResponse,
+    StreamGenerationResponse,
     GenerationSource
 )
 from app.services.retrieval.retriever import RetrievalService
@@ -116,7 +116,7 @@ class GenerationService:
         request: GenerationRequest, 
         config: RAGConfig,
         user_id: str
-    ) -> AsyncIterator[StreamingGenerationResponse]:
+    ) -> AsyncIterator[StreamGenerationResponse]:
         """
         Stream a response for the given request using RAG.
         
@@ -126,7 +126,7 @@ class GenerationService:
             user_id: ID of the requesting user
             
         Returns:
-            AsyncIterator yielding StreamingGenerationResponse objects
+            AsyncIterator yielding StreamGenerationResponse objects
         """
         try:
             start_time = datetime.utcnow()
@@ -150,7 +150,7 @@ class GenerationService:
                 )
                 
                 if retrieval_response.error:
-                    yield StreamingGenerationResponse(
+                    yield StreamGenerationResponse(
                         chunk="",
                         error=f"Retrieval error: {retrieval_response.error}",
                         is_done=True,
@@ -163,7 +163,7 @@ class GenerationService:
                 
                 # Emit sources if requested
                 if request.include_sources and retrieved_chunks:
-                    yield StreamingGenerationResponse(
+                    yield StreamGenerationResponse(
                         chunk="",
                         sources=retrieved_chunks,
                         is_done=False
@@ -185,7 +185,7 @@ class GenerationService:
                 # Yield each token
                 is_done = generation_info.get("finish_reason") is not None
                 
-                yield StreamingGenerationResponse(
+                yield StreamGenerationResponse(
                     chunk=token,
                     is_done=is_done,
                     sources=[]  # Sources are only sent in the first chunk
@@ -196,7 +196,7 @@ class GenerationService:
                     break
             
             # Ensure we send a final message with is_done=True
-            yield StreamingGenerationResponse(
+            yield StreamGenerationResponse(
                 chunk="",
                 is_done=True,
                 sources=[]
@@ -204,7 +204,7 @@ class GenerationService:
             
         except Exception as e:
             logging.error(f"Streaming generation error: {str(e)}")
-            yield StreamingGenerationResponse(
+            yield StreamGenerationResponse(
                 chunk="",
                 error=f"Streaming generation error: {str(e)}",
                 is_done=True,

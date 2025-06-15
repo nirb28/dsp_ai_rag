@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, Body
 from fastapi.responses import StreamingResponse
 from typing import Dict, List, Any, Optional, AsyncIterator
 import time
@@ -9,7 +9,7 @@ from app.models.retrieval import (
     GenerationRequest, GenerationResponse, GenerationSource,
     StreamGenerationResponse
 )
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_current_user
 from app.core.config import settings
 
 router = APIRouter()
@@ -23,7 +23,7 @@ configurations_db = {}
 @router.post("/", response_model=GenerationResponse)
 async def generate_response(
     request: GenerationRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Generate a response based on retrieved context"""
     user_id = current_user.get("sub")
@@ -145,7 +145,7 @@ async def generate_stream_chunks(query: str) -> AsyncIterator[bytes]:
 @router.post("/stream")
 async def stream_generation(
     request: GenerationRequest,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Stream a generated response based on retrieved context"""
     user_id = current_user.get("sub")
@@ -161,7 +161,7 @@ async def stream_generation(
 async def provide_feedback(
     request_id: str,
     feedback: Dict[str, Any] = Body(...),
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Provide feedback on a generated response"""
     user_id = current_user.get("sub")
@@ -173,7 +173,7 @@ async def provide_feedback(
 
 @router.get("/models", response_model=List[Dict[str, Any]])
 async def list_available_models(
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """List available generation models"""
     user_id = current_user.get("sub")

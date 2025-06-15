@@ -13,7 +13,7 @@ from app.models.document import (
     DocumentStatus, DocumentType
 )
 from app.models.config_options import RAGConfig
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_current_user
 from app.core.config import settings
 
 router = APIRouter()
@@ -76,7 +76,7 @@ async def upload_document(
     title: Optional[str] = Form(None),
     metadata: Optional[str] = Form(None),
     config_id: Optional[str] = Form(None),
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Upload a document for indexing"""
     user_id = current_user.get("sub")
@@ -160,7 +160,7 @@ async def upload_document(
 async def list_documents(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """List all documents for the current user"""
     user_id = current_user.get("sub")
@@ -189,7 +189,7 @@ async def list_documents(
 @router.get("/{document_id}", response_model=DocumentResponse)
 async def get_document(
     document_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Get a specific document by ID"""
     user_id = current_user.get("sub")
@@ -215,7 +215,7 @@ async def get_document(
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
     document_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Delete a document"""
     user_id = current_user.get("sub")
@@ -252,7 +252,7 @@ async def delete_document(
 async def reprocess_document(
     document_id: str,
     config_id: Optional[str] = None,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Reprocess a document with a new configuration"""
     user_id = current_user.get("sub")

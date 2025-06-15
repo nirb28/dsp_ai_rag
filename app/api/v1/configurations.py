@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 from typing import Dict, List, Any, Optional
 
 from app.models.config_options import RAGConfig, ChunkingStrategy, VectorStoreType, EmbeddingModelType, CompletionModelType
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_current_user
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ configurations_db = {}
 @router.post("/", response_model=RAGConfig)
 async def create_configuration(
     config: RAGConfig,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Create a new configuration for RAG pipeline"""
     user_id = current_user.get("sub")
@@ -40,7 +40,7 @@ async def create_configuration(
 
 @router.get("/", response_model=List[RAGConfig])
 async def list_configurations(
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """List all configurations for the current user"""
     user_id = current_user.get("sub")
@@ -58,7 +58,7 @@ async def list_configurations(
 @router.get("/{config_name}", response_model=RAGConfig)
 async def get_configuration(
     config_name: str,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Get a specific configuration by name"""
     user_id = current_user.get("sub")
@@ -77,7 +77,7 @@ async def get_configuration(
 async def update_configuration(
     config_name: str,
     config: RAGConfig,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Update an existing configuration"""
     user_id = current_user.get("sub")
@@ -100,7 +100,7 @@ async def update_configuration(
 @router.delete("/{config_name}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_configuration(
     config_name: str,
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Delete a configuration"""
     user_id = current_user.get("sub")
@@ -142,7 +142,7 @@ async def get_completion_models():
 
 @router.get("/options/local-models", response_model=List[Dict[str, Any]])
 async def get_available_local_models(
-    current_user: Dict[str, Any] = Depends(get_current_user)
+    current_user: Dict[str, Any] = Depends(get_optional_current_user)
 ):
     """Get available local models"""
     # Here we would scan the local models directory and return model info

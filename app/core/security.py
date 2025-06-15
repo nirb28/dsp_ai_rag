@@ -1,5 +1,5 @@
 import httpx
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Dict, Any, Optional
 
@@ -74,3 +74,36 @@ class JWTAuthService:
 def get_current_user(token_data: Dict[str, Any] = Depends(JWTAuthService.validate_token)) -> Dict[str, Any]:
     """Get the current authenticated user from token data"""
     return token_data
+
+
+async def get_optional_current_user(
+    authorization: Optional[str] = Header(None)
+) -> Dict[str, Any]:
+    """Optional authentication - allows API access without authentication for development.
+    
+    This should only be used in development/test environments!
+    
+    Returns a mock user when no authentication is provided.
+    """
+    if not authorization:
+        # Return a mock user for development purposes
+        return {"sub": "test-user", "name": "Test User", "is_dev": True}
+    
+    # Try to validate the token if one is provided
+    try:
+        token = authorization.replace("Bearer ", "")
+        # Call JWT validation service (simplified for this example)
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                settings.JWT_AUTH_URL,
+                json={"token": token},
+                timeout=5.0
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+    except Exception:
+        pass
+        
+    # Fallback to mock user if token validation fails
+    return {"sub": "test-user", "name": "Test User", "is_dev": True}

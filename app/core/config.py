@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # Storage settings
     UPLOAD_DIR: Path = Path("./storage/uploads")
     VECTOR_DB_DIR: Path = Path("./storage/vectordb")
+    DOCUMENT_STORAGE_DIR: Path = Path("./storage/documents")
     
     # Default model settings
     DEFAULT_EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"

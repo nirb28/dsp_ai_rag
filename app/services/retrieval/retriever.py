@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional, Union, Tuple
 import asyncio
 
 from app.models.document import DocumentChunk
-from app.models.config_options import RAGConfig, ReRankingConfig
+from app.models.config_options import RAGConfig, RerankingConfig
 from app.models.retrieval import (
     RetrievalRequest, 
     RetrievalResponse, 
@@ -117,7 +117,7 @@ class RetrievalService:
         self,
         query: str,
         chunks: List[RetrievedChunk],
-        reranking_config: ReRankingConfig
+        reranking_config: RerankingConfig
     ) -> List[RetrievedChunk]:
         """
         Rerank retrieved chunks using specified reranking method.
@@ -154,7 +154,7 @@ class RetrievalService:
         self,
         query: str,
         chunks: List[RetrievedChunk],
-        config: ReRankingConfig
+        config: RerankingConfig
     ) -> List[RetrievedChunk]:
         """
         Rerank chunks using a cross-encoder model.
@@ -201,7 +201,7 @@ class RetrievalService:
         self,
         query: str,
         chunks: List[RetrievedChunk],
-        config: ReRankingConfig
+        config: RerankingConfig
     ) -> List[RetrievedChunk]:
         """
         Rerank chunks using BM25 algorithm.
@@ -261,7 +261,7 @@ class RetrievalService:
         self,
         query: str,
         chunks: List[RetrievedChunk],
-        config: ReRankingConfig
+        config: RerankingConfig
     ) -> List[RetrievedChunk]:
         """
         Rerank chunks using Maximum Marginal Relevance (MMR) to optimize for relevance and diversity.

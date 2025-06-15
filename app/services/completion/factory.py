@@ -12,7 +12,8 @@ class CompletionFactory:
     # Registry of completion model classes
     _completion_models: Dict[CompletionModelType, Type[BaseCompletion]] = {
         CompletionModelType.OPENAI: OpenAICompletion,
-        CompletionModelType.LOCAL: LocalCompletion,
+        CompletionModelType.LOCAL_LLAMA: LocalCompletion,
+        CompletionModelType.LOCAL_TRANSFORMERS: LocalCompletion,
     }
     
     @classmethod
